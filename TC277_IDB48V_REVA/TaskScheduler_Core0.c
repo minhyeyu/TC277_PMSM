@@ -27,8 +27,6 @@
 #if EPB_SPI_H_
 #include "IfxScu_reg.h"
 #include "Pwm_17_Gtm.h"
-//#include "UsrCan.h"
-
 #endif
 
 #include "IfxPort_reg.h"
