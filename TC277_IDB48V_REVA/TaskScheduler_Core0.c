@@ -1,4 +1,70 @@
+// ------------------------------------- DISCLAIMER -----------------------------------------//
+// THE INFORMATION GIVEN IN THE DOCUMENTS (APPLICATION NOTE, SOFTWARE PROGRAM ETC.)
+// IS GIVEN AS A HINT FOR THE IMPLEMENTATION OF THE INFINEON TECHNOLOGIES COMPONENT ONLY
+// AND SHALL NOT BE REGARDED AS ANY DESCRIPTION OR WARRANTY OF A CERTAIN FUNCTIONALITY,
+// CONDITION OR QUALITY OF THE INFINEON TECHNOLOGIES COMPONENT.
+// YOU MUST VERIFY ANY FUNCTION DESCRIBED IN THE DOCUMENTS IN THE REAL APPLICATION.
+// INFINEON TECHNOLOGIES AG HEREBY DISCLAIMS ANY AND ALL WARRANTIES AND LIABILITIES OF ANY KIND
+// (INCLUDING WITHOUT LIMITATION WARRANTIES OF NON-INFRINGEMENT OF INTELLECTUAL PROPERTY RIGHTS
+// OF ANY THIRD PARTY) WITH RESPECT TO ANY AND ALL INFORMATION GIVEN IN THE DOCUMENTS.
+// ------------------------------------------------ -----------------------------------------//
+/*******************************************************************************
+**                                                                            **
+** Copyright (C) Infineon Technologies (2010)                                 **
+**                                                                            **
+** All rights reserved.                                                       **
+**                                                                            **
+** This document contains proprietary information belonging to Infineon       **
+** Technologies. Passing on and copying of this document, and communication   **
+** of its contents is not permitted without prior written authorization.      **
+**                                                                            **
+********************************************************************************
+**                                                                            **
+**  FILENAME  : TaskScheduler.c                                              **
+**                                                                            **
+**  VERSION   : 0.0.1                                                         **
+**                                                                            **
+**  DATE      : 2013-05-26                                                    **
+**                                                                            **
+**  VARIANT   : VariantPB                                                     **
+**                                                                            **
+**  PLATFORM  : AURIX                                                         **
+**                                                                            **
+**  COMPILER  : Tasking                                                       **
+**                                                                            **
+**  AUTHOR    : DL-AUTOSAR-Engineering                                        **
+**                                                                            **
+**  VENDOR    : Infineon Technologies                                         **
+**                                                                            **
+**  DESCRIPTION  : This file contains                                         **
+**                 - sample Demo Test for all the  modules                    **
+**                                                                            **
+**  SPECIFICATION(S) :                                                        **
+**                                                                            **
+**  MAY BE CHANGED BY USER [Yes/No]: Yes                                      **
+*******************************************************************************/
+/*******************************************************************************
+**                      Author(s) Identity                                    **
+********************************************************************************
+**                                                                            **
+** Initials     Name                                                          **
+** ---------------------------------------------------------------------------**
+** K,S,H,W      KIM SUNG HOON , WAYNE                                         **
+*******************************************************************************/
 
+/*******************************************************************************
+**                      Revision Control History                              **
+********************************************************************************
+
+*******************************************************************************/
+
+//****************************************************************************
+// @Project            Demo
+// @Filename          TaskScheduler.c
+// @Author            IFKOR SMD ATV SAE / KIM SUNG HOON , WAYNE
+// @Controller        Infineon TC275T-B
+// @Compiler          TASKING VX-toolset for Tricore v4.2r2
+//****************************************************************************
 /*******************************************************************************
 **                      Includes                                              **
 *******************************************************************************/
@@ -27,6 +93,8 @@
 #if EPB_SPI_H_
 #include "IfxScu_reg.h"
 #include "Pwm_17_Gtm.h"
+//#include "UsrCan.h"
+
 #endif
 
 #include "IfxPort_reg.h"
@@ -73,13 +141,13 @@ uint32		time_counter_10ms=0;
 uint32		time_counter_1ms =0;
 uint32		time_counter_10us=0;
 uint32		time_counter_1s  =0;
-uint16 uTesflagPWM = 0;
-uint8 uTesflagMotor=0;
+uint16 		uTesflagPWM = 0;
+uint8 		uTesflagMotor=0;
 
 //****************************************************************************
 // @ Imported Global Variables
 //****************************************************************************
-extern CanMsg_t DiagInfo;
+extern CanMsg_t 	DiagInfo;
 extern uint32		Init_func_MTR;
 extern uint8 		Init_Count;
 //****************************************************************************
@@ -88,17 +156,12 @@ extern uint8 		Init_Count;
 extern void	ASIC_test(uint32 time_counter);
 extern void Adc_Initialization(void);
 extern void ADC_Conversion(void);
-
+extern void UsrCan_Task_10ms (void);
 #if EPB_SPI_H_
 extern	void 	EPB_Int(void);
-//extern void EPB_test(void);
-//extern	void	EPBTxSPI(uint8 SPI_ADD ,boolean RW);
-//extern	void	Send_Spi2(uint32 TX_Command_32, uint32 RX_Command_32);
 extern	void	EPB_WD(void);
 extern	void	YG_Init(void);
 #endif
-
-//void	ASIC_test(uint32 time_counter);
 
 //*********************************************************************************************
 // @Function         void Gpt_Notification_SystemTick_Core0(void)
@@ -113,17 +176,7 @@ void Gpt_Notification_SystemTick_Core0(void)
     TaskControl_Core0.B.Enable = 1;
 
 } /* Gpt_Notification_SystemTick_Core0() */
-/*
-void Gpt_Notification_1msSystemISR_Core1(void)
-{
-	//unresolved external .... (Gpt_PBCfg.o)
-}*/
-//*********************************************************************************************
-// @Function         void TaskScheduler_Initialization_Core0(unsigned int maxTask)
-// @Description       Initialize task scheduler related parameters.
-// @Returnvalue        None
-// @Parameters        None
-//*********************************************************************************************
+
 void TaskScheduler_Initialization_Core0(unsigned int maxTask)
 {
     TaskControl_Core0.U = 0;
@@ -131,7 +184,7 @@ void TaskScheduler_Initialization_Core0(unsigned int maxTask)
     TaskControl_Core0.B.Tick        = SYSTEM_TICK;
     TaskControl_Core0.B.TaskMax     = maxTask;
 
-    Dio_WriteChannel(DioConf_DioChannel_DioChannel_22_0_MOT_DRV_EN, OFF);
+    //Dio_WriteChannel(DioConf_DioChannel_DioChannel_22_0_MOT_DRV_EN, OFF);
     Dio_WriteChannel(DioConf_DioChannel_DioChannel_22_0_MOT_DRV_EN, ON); // MOT_DRV_EN
 
     // Enable notification for system tick generation
@@ -151,8 +204,9 @@ void TaskScheduler_Initialization_Core0(unsigned int maxTask)
     Dio_WriteChannel(DIO_CHANNEL_22_0, OFF);// MOT_DRV_EN*/
 
 
-    Dio_WriteChannel(DioConf_DioChannel_DioChannel_21_5_MTR_IC_EN, OFF);//MTR_IC_EN
     Dio_WriteChannel(DioConf_DioChannel_DioChannel_21_5_MTR_IC_EN, ON);//MTR_IC_EN
+    Dio_WriteChannel(DioConf_DioChannel_DioChannel_21_5_MTR_IC_EN, ON);//MTR_IC_EN
+    Dio_WriteChannel(DioConf_DioChannel_DioChannel_23_2_GD_RESETN, ON);//P22_OUT.B.P7 = ON;
 
     /*Dio_WriteChannel(DIO_CHANNEL_2_3, ON);
     Dio_WriteChannel(DIO_CHANNEL_2_4, ON);
@@ -186,22 +240,16 @@ void TaskScheduler_Initialization_Core0(unsigned int maxTask)
 //*********************************************************************************************
 static void TaskScheduler_TaskCalculation(void)
 {
-    #if(SYSTEM_TICK == 10 || SYSTEM_TICK == 100)
     if((TaskControl_Core0.B.TickCount % TASK_100us) == 0) TaskControl_Core0.B.TaskRun = TASK_100us;
-    #endif
-    #if(SYSTEM_TICK == 10 || SYSTEM_TICK == 100|| SYSTEM_TICK == 200)
     if((TaskControl_Core0.B.TickCount % TASK_200us) == 0) TaskControl_Core0.B.TaskRun = TASK_200us;
-    #endif
-    if((TaskControl_Core0.B.TickCount % TASK_1ms)    == 0) TaskControl_Core0.B.TaskRun = TASK_1ms;
-    if((TaskControl_Core0.B.TickCount % TASK_5ms)     == 0) TaskControl_Core0.B.TaskRun = TASK_5ms;
-    if((TaskControl_Core0.B.TickCount % TASK_10ms)    == 0) TaskControl_Core0.B.TaskRun = TASK_10ms;
-    if((TaskControl_Core0.B.TickCount % TASK_20ms)    == 0) TaskControl_Core0.B.TaskRun = TASK_20ms;
-    if((TaskControl_Core0.B.TickCount % TASK_50ms)    == 0) TaskControl_Core0.B.TaskRun = TASK_50ms;
-    if((TaskControl_Core0.B.TickCount % TASK_100ms)    == 0) TaskControl_Core0.B.TaskRun = TASK_100ms;
-#if( SYSTEM_TICK==100 || SYSTEM_TICK==200 || SYSTEM_TICK==1000)
+    if((TaskControl_Core0.B.TickCount % TASK_1ms)   == 0) TaskControl_Core0.B.TaskRun = TASK_1ms;
+    if((TaskControl_Core0.B.TickCount % TASK_5ms)   == 0) TaskControl_Core0.B.TaskRun = TASK_5ms;
+    if((TaskControl_Core0.B.TickCount % TASK_10ms)  == 0) TaskControl_Core0.B.TaskRun = TASK_10ms;
+    if((TaskControl_Core0.B.TickCount % TASK_20ms)  == 0) TaskControl_Core0.B.TaskRun = TASK_20ms;
+    if((TaskControl_Core0.B.TickCount % TASK_50ms)  == 0) TaskControl_Core0.B.TaskRun = TASK_50ms;
+    if((TaskControl_Core0.B.TickCount % TASK_100ms) == 0) TaskControl_Core0.B.TaskRun = TASK_100ms;
     if((TaskControl_Core0.B.TickCount % TASK_1s)    == 0) TaskControl_Core0.B.TaskRun = TASK_1s;
     if((TaskControl_Core0.B.TickCount % TASK_5s)    == 0) TaskControl_Core0.B.TaskRun = TASK_5s;
-#endif
 
 }  // End of TaskScheduler_TaskCalculation()
 
@@ -311,23 +359,24 @@ static    void TaskScheduler_100us(void)
     //    P13_OUT.B.P6 = !P13_OUT.B.P6;
     //    P13_OUT.B.P7 = !P13_OUT.B.P7;
         ADC_Conversion();
-        switch(DiagInfo.data[0] )
+        switch(DiagInfo.data[0])
         {
         case	0:
+        	Dio_WriteChannel(DioConf_DioChannel_DioChannel_23_2_GD_RESETN, OFF);//P22_OUT.B.P7 = OFF;
         	uTesflagPWM = 0;
-        	//uTesflagMotor = 0;
-        	//MC_StopMotor();
+        	uTesflagMotor = 0;
+
         	break;
         case	1:
         	uTesflagPWM = 0;
-        	uTesflagMotor = 0;
+        	uTesflagMotor = 2;
         	break;
     	case	2:
         	uTesflagPWM = 0;
         	uTesflagMotor = 1;
-
     		break;
     	case	3:
+    		Dio_WriteChannel(DioConf_DioChannel_DioChannel_23_2_GD_RESETN, ON);//P22_OUT.B.P7 = ON;
         	uTesflagPWM = 1;
         	uTesflagMotor=0;
         	Dead_Time=DiagInfo.data[1];
@@ -348,7 +397,22 @@ static    void TaskScheduler_100us(void)
     		break;
 
         }
-
+#if 1//MOT_SPI_H_
+//    if(uTesflagPWM == 1) 	{	UsrMTR_func();}
+    if(uTesflagMotor ==1 )
+    {
+		Dio_WriteChannel(DioConf_DioChannel_DioChannel_21_5_MTR_IC_EN, ON);//MTR_IC_EN
+    	MC_StartMotor();
+    }
+    else
+    {
+    	if(uTesflagMotor == 2)
+    	{
+    		MC_StopMotor();
+    		Dio_WriteChannel(DioConf_DioChannel_DioChannel_21_5_MTR_IC_EN, OFF);//MTR_IC_EN
+    	}
+    }
+#endif
     __nop();
 } // End of TaskScheduler_100us();
 
@@ -391,9 +455,19 @@ static    void TaskScheduler_10ms(void)
     time_counter_10ms++;
     ASIC_test(time_counter_10ms);
 
-#if 1//MOT_SPI_H_
+#if 0//MOT_SPI_H_
 //    if(uTesflagPWM == 1) 	{	UsrMTR_func();}
-    if(uTesflagMotor ==1 ){MC_StartMotor();}
+    if(uTesflagMotor ==1 )
+    {
+    	MC_StartMotor();
+    }
+    else
+    {
+    	if(uTesflagMotor == 2)
+    	{
+    		MC_StopMotor();
+    	}
+    }
 #endif
 
     ADC_Conversion();
@@ -450,7 +524,6 @@ static    void TaskScheduler_100ms(void)
     UsrCan_Task_10ms();
 //    Can_Test();
     __nop();
-
 } // End of TaskScheduler_100ms();
 
 

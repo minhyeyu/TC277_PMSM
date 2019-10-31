@@ -1,4 +1,13 @@
-
+// ------------------------------------- DISCLAIMER -----------------------------------------//
+// THE INFORMATION GIVEN IN THE DOCUMENTS (APPLICATION NOTE, SOFTWARE PROGRAM ETC.)
+// IS GIVEN AS A HINT FOR THE IMPLEMENTATION OF THE INFINEON TECHNOLOGIES COMPONENT ONLY
+// AND SHALL NOT BE REGARDED AS ANY DESCRIPTION OR WARRANTY OF A CERTAIN FUNCTIONALITY,
+// CONDITION OR QUALITY OF THE INFINEON TECHNOLOGIES COMPONENT.
+// YOU MUST VERIFY ANY FUNCTION DESCRIBED IN THE DOCUMENTS IN THE REAL APPLICATION.
+// INFINEON TECHNOLOGIES AG HEREBY DISCLAIMS ANY AND ALL WARRANTIES AND LIABILITIES OF ANY KIND
+// (INCLUDING WITHOUT LIMITATION WARRANTIES OF NON-INFRINGEMENT OF INTELLECTUAL PROPERTY RIGHTS
+// OF ANY THIRD PARTY) WITH RESPECT TO ANY AND ALL INFORMATION GIVEN IN THE DOCUMENTS.
+// ------------------------------------------------ -----------------------------------------//
 /*******************************************************************************
 **                      Includes                                              **
 *******************************************************************************/
@@ -9,10 +18,7 @@
 #include "Mcal.h"
 #include "Spi.h"
 #include "Pwm_17_Gtm.h"
-
-#if MTR_PROCESSING_MEAS_EXEC_TIME == STD_ON
 #include "IfxStm_reg.h"
-#endif
 #include "IfxGtm_regdef.h"
 #include "Gtm.h"
 #define MTR_MSB_THIRD_MASK		(0x0000FF00)
@@ -90,9 +96,6 @@ void EnableInput_CH1_D_CH2_E_CH3_E(void);
 void DisableInput_CH1_D_CH2_D_CH3_D(void);
 static uint8 Mtr_Process_MotorCtrState(const Mtr_Processing_Internal_t *pMtr_Internal);
 
-
-
-
 /*******************************************************************************
 **                      Global Function Definitions                           **
 *******************************************************************************/
@@ -113,12 +116,13 @@ void MTR_Center_Frequency(void)
 void UsrMTR_Init(void)
 {
     Dio_WriteChannel(DioConf_DioChannel_DioChannel_21_5_MTR_IC_EN, ON);
-    Dio_WriteChannel(DioConf_DioChannel_DioChannel_21_5_MTR_IC_EN, ON);
-    //Dio_WriteChannel(DioConf_DioChannel_DioChannel_23_6_MTR_RVP_OFF, ON);
     Dio_WriteChannel(DioConf_DioChannel_DioChannel_23_6_MTR_RVP_OFF, OFF);
 
     Pwm_17_Gtm_SetPeriodAndDuty(Pwm_17_GtmConf_PwmChannel_PwmChannel_MTR_Center_REF, 5000, 2500);
-	spi_amt49100(0x12, 1, 0);
+    spi_amt49100(0x00, 1, 0x07F);
+    spi_amt49100(0x00, 0, 0);
+    spi_amt49100(0x12, 1, 0);
+	spi_amt49100(0x1F, 0, 0);
 	spi_amt49100(0x1C, 0, 0);//11100000_00000000
 	spi_amt49100(0x1D, 0, 0);//11101000_00000001
 	spi_amt49100(0x1E, 0, 0);//11110000_00000001
@@ -137,45 +141,14 @@ void UsrMTR_Init(void)
 	spi_amt49100(0x02, 1, 0x03F);
 	spi_amt49100(0x02, 0, 0);
 	spi_amt49100(0x03, 0, 0);
-	spi_amt49100(0x03, 1, 0x11F);
+	spi_amt49100(0x03, 1, 0x13F);
 	spi_amt49100(0x03, 0, 0);
 	spi_amt49100(0x05, 0, 0);
+  	spi_amt49100(0x1F, 0, 0);
+	spi_amt49100(0x1C, 0, 0);//11100000_00000000
+	spi_amt49100(0x1D, 0, 0);//11101000_00000001
+	spi_amt49100(0x1E, 0, 0);//11110000_00000001
 
-
-/*
-/*
-    Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI
-	Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO
-	Pwm_17_GtmConf_PwmChannel_PwmChannel_W_HI
-	Pwm_17_GtmConf_PwmChannel_PwmChannel_W_LO
-	Pwm_17_GtmConf_PwmChannel_PwmChannel_V_HI
-	Pwm_17_GtmConf_PwmChannel_PwmChannel_V_LO
-	*/
-#if 0 // all high
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI,0x8000);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO,0);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_HI,0x8000);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_LO,0);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_HI,0x8000);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_LO,0);
-#endif
-#if 0 //HI LOW, LO HIGH
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI,0x4000);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO,0x4000);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_HI,0x4000);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_LO,0x4000);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_HI,0x4000);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_LO,0x4000);
-#endif
-
-#if 0 // all 50% duty
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI,2500);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO,2500);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_HI,2500);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_LO,2500);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_HI,2500);
-    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_LO,2500);
-#endif
 	U_HI=0;
 	V_HI=0;
 	W_HI=0;
@@ -194,45 +167,38 @@ void UsrMTR_Init(void)
     Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_LO,W_LO);
     Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_HI,V_HI);
     Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_LO,V_LO);
-    //Ifx_GTM_TOM_CH_CM0_Bits.CM0;
 
 }
 
 void UsrMTR_func(void)
 {
-	  	spi_amt49100(0x1F, 0, 0);
+	Dio_WriteChannel(DioConf_DioChannel_DioChannel_21_5_MTR_IC_EN, ON);
+		/*spi_amt49100(0x07, 0, 0);
+	  	spi_amt49100(0x12, 0, 0);
+	  	spi_amt49100(0x13, 0, 0);
 		spi_amt49100(0x1C, 0, 0);//11100000_00000000
 		spi_amt49100(0x1D, 0, 0);//11101000_00000001
-		spi_amt49100(0x1E, 0, 0);//11110000_00000001
+		spi_amt49100(0x1E, 0, 0);//11110000_00000001*/
+	spi_amt49100(0x1F, 0, 0);
+
 		if(U_HI>5000) {U_HI=5000;}
 		if(V_HI>5000) {V_HI=5000;}
 		if(W_HI>5000) {W_HI=5000;}
-	    U_LO= ((U_HI)-Dead_Time);
-	    V_LO= ((V_HI)-Dead_Time);
-	    W_LO= ((W_HI)-Dead_Time);
 	    if(U_LO<0) {U_LO=0;}
 	    else {if(U_LO>5000){U_LO=5000;}}
 	    if(V_LO<0) {V_LO=0;}
 	    else {if(V_LO>5000){V_LO=5000;}}
 	    if(W_LO<0) {W_LO=0;}
 	    else {if(W_LO>5000){W_LO=5000;}}
-	    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI,U_HI);
-	    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO,U_LO);
-	    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_HI,W_HI);
-	    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_LO,W_LO);
-	    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_HI,V_HI);
-	    Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_LO,V_LO);
-	    Gtm_SetTomCompareValCm1((uint8) 0,(uint8) 8,(uint16) 1000);
-
-	    //Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO,(U_LO));
-
-
+	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI,U_HI);
+	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO,U_LO);
+	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_HI,W_HI);
+	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_LO,W_LO);
+	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_HI,V_HI);
+	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_LO,V_LO);
 	Init_func_MTR++;
 
 }
-
-
-
 
 
 void Send_MTR_Spi(uint16 TX_Command_16, uint16 RX_Command_16)
@@ -301,47 +267,31 @@ uint8 parity_check(uint16 input_data)
 		return 1;
 	}
 }
+uint16 test_phase = 50;
 void EnableInput_CH1_E_CH2_E_CH3_D()
 {
-	//spi_amt49100(0x1F, 0, 0);
-	//spi_amt49100(0x1C, 0, 0);//11100000_00000000
-	//spi_amt49100(0x1D, 0, 0);//11101000_00000001
-	//spi_amt49100(0x1E, 0, 0);//11110000_00000001
-	U_HI=5000;
+	U_HI=0;
 	V_HI=0;
-	W_HI=0;
-	U_LO= ((U_HI)-Dead_Time);
-	V_LO= ((V_HI)-Dead_Time);
-	W_LO= 0;//((W_HI)-Dead_Time);
-	if(V_LO<0) {V_LO=0;}
-	  else {if(V_LO>5000){V_LO=5000;}}
-	if(W_LO<0) {W_LO=0;}
-	  else {if(W_LO>5000){W_LO=5000;}}
+	W_HI=5000;//test_phase;
+	U_LO= (5000-(test_phase)-Dead_Time);
+	V_LO= (5000-(test_phase)-Dead_Time);
+	W_LO= 5000;//((W_HI)-Dead_Time);
+
 	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI,U_HI);
 	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO,U_LO);
 	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_HI,W_HI);//Pwm_17_Gtm_SetOutputToIdle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_HI);
 	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_LO,W_LO);//Pwm_17_Gtm_SetOutputToIdle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_LO);
     Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_HI,V_HI);
     Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_LO,V_LO);
-
 }
 void EnableInput_CH1_E_CH2_D_CH3_E()
 {
-	//spi_amt49100(0x1F, 0, 0);
-	//spi_amt49100(0x1C, 0, 0);//11100000_00000000
-	//spi_amt49100(0x1D, 0, 0);//11101000_00000001
-	//spi_amt49100(0x1E, 0, 0);//11110000_00000001
 	U_HI=0;
-	V_HI-0;
-	W_HI=5000;
-	U_LO= ((U_HI)-Dead_Time);
-	V_LO= ((V_HI)-Dead_Time);
-	W_LO= 0;//((W_HI)-Dead_Time);
-    if(U_LO<0) {U_LO=0;}
-	  else {if(U_LO>5000){U_LO=5000;}}
-	if(V_LO<0) {V_LO=0;}
-	  else {if(V_LO>5000){V_LO=5000;}}
-
+	V_HI=5000;//test_phase;
+	W_HI=0;
+	U_LO= (5000-(test_phase)-Dead_Time);
+	V_LO= 5000;
+	W_LO=(5000-(test_phase)-Dead_Time);
 	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI,U_HI);
 	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO,U_LO);
     Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_HI,W_HI);
@@ -351,33 +301,37 @@ void EnableInput_CH1_E_CH2_D_CH3_E()
 }
 void EnableInput_CH1_D_CH2_E_CH3_E()
 {
-	//spi_amt49100(0x1F, 0, 0);
-	//spi_amt49100(0x1C, 0, 0);//11100000_00000000
-	//spi_amt49100(0x1D, 0, 0);//11101000_00000001
-	//spi_amt49100(0x1E, 0, 0);//11110000_00000001
-	U_HI=0;
-	V_HI=5000;
+	U_HI=5000;//test_phase;
+	V_HI=0;
 	W_HI=0;
-	U_LO= 0;//((U_HI)-Dead_Time);
-    V_LO= ((V_HI)-Dead_Time);
-	W_LO= ((W_HI)-Dead_Time);
-	if(U_LO<0) {U_LO=0;}
-	  else {if(U_LO>5000){U_LO=5000;}}
-	if(W_LO<0) {W_LO=0;}
-	  else {if(W_LO>5000){W_LO=5000;}}
+	U_LO= 5000;//((U_HI)-Dead_Time);
+    V_LO= (5000-(test_phase)-Dead_Time);
+	W_LO= (5000-(test_phase)-Dead_Time);
+
 	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI,U_HI);//Pwm_17_Gtm_SetOutputToIdle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI);
 	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO,U_LO);//Pwm_17_Gtm_SetOutputToIdle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO);
     Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_HI,W_HI);
     Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_LO,W_LO);
     Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_HI,V_HI);
     Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_LO,V_LO);
-
 }
 
 void DisableInput_CH1_D_CH2_D_CH3_D()
 {
+	U_HI=0;
+	U_LO=5000-0-100;
+	V_HI=0;
+	V_LO=5000-0-100;
+	W_HI=0;
+	W_LO=5000-0-100;
+	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI,U_HI);//Pwm_17_Gtm_SetOutputToIdle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI);
+	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO,U_LO);//Pwm_17_Gtm_SetOutputToIdle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO);
+	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_HI,W_HI);//Pwm_17_Gtm_SetOutputToIdle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI);
+	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_W_LO,W_LO);//Pwm_17_Gtm_SetOutputToIdle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO);
+	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_HI,V_HI);//Pwm_17_Gtm_SetOutputToIdle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_HI);
+	Pwm_17_Gtm_SetDutyCycle(Pwm_17_GtmConf_PwmChannel_PwmChannel_V_LO,V_LO);//Pwm_17_Gtm_SetOutputToIdle(Pwm_17_GtmConf_PwmChannel_PwmChannel_U_LO);
 
-	UsrMTR_Init();
+
 }
 static uint8 Mtr_Process_MotorCtrState(const Mtr_Processing_Internal_t *pMtr_Internal)
 {

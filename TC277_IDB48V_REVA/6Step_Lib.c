@@ -1150,15 +1150,17 @@ void MC_StopMotor()
   uwTick = 0;  
   SIXSTEP_parameters.STATUS = STOP;
   SIXSTEP_parameters.RUN_Motor = 0;
-  MC_SixStep_Stop_PWM_driving();
+ // MC_SixStep_Stop_PWM_driving();
 //  HF_TIMx.Instance->CR1 &= ~(TIM_CR1_CEN);
 //  HF_TIMx.Instance->CNT = 0;
   MC_SixStep_DisableInput_CH1_D_CH2_D_CH3_D();
 //  HAL_TIM_Base_Stop_IT(&LF_TIMx);
 //  HAL_ADC_Stop_IT(&ADCx);
-  MC_SixStep_Current_Reference_Stop();
+//  MC_SixStep_Current_Reference_Stop();
 //  BSP_X_NUCLEO_FAULT_LED_OFF();
-  MC_SixStep_RESET();
+//  MC_SixStep_RESET();
+
+
 }
 
 /**
@@ -1722,13 +1724,17 @@ void MC_EXT_button_SixStep()
 
 void MC_SixStep_EnableInput_CH1_E_CH2_E_CH3_D()
 {
-   EnableInput_CH1_E_CH2_E_CH3_D();
+	EnableInput_CH1_E_CH2_D_CH3_E();
+
+//	EnableInput_CH1_E_CH2_E_CH3_D();
 }
 
 
 void  MC_SixStep_EnableInput_CH1_E_CH2_D_CH3_E()
 {
-  EnableInput_CH1_E_CH2_D_CH3_E();
+	EnableInput_CH1_E_CH2_E_CH3_D();
+
+//	EnableInput_CH1_E_CH2_D_CH3_E();
 }
 
 
