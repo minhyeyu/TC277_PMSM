@@ -115,11 +115,11 @@ void MTR_Center_Frequency(void)
 
 void UsrMTR_Init(void)
 {
-    Dio_WriteChannel(DioConf_DioChannel_DioChannel_21_5_MTR_IC_EN, ON);
     Dio_WriteChannel(DioConf_DioChannel_DioChannel_23_6_MTR_RVP_OFF, OFF);
+    Dio_WriteChannel(DioConf_DioChannel_DioChannel_21_5_MTR_IC_EN, ON);
 
     Pwm_17_Gtm_SetPeriodAndDuty(Pwm_17_GtmConf_PwmChannel_PwmChannel_MTR_Center_REF, 5000, 2500);
-    spi_amt49100(0x00, 1, 0x07F);
+    //spi_amt49100(0x00, 1, 0x07F);
     spi_amt49100(0x00, 0, 0);
     spi_amt49100(0x12, 1, 0);
 	spi_amt49100(0x1F, 0, 0);
@@ -129,20 +129,22 @@ void UsrMTR_Init(void)
 	spi_amt49100(0x13, 1, 0);
 	spi_amt49100(0x1F, 0, 0);
 	spi_amt49100(0x07, 0, 0);
-	spi_amt49100(0x07, 1, 0xE0);
+	spi_amt49100(0x07, 1, 0x1E0);
 	spi_amt49100(0x07, 0, 0);
 	spi_amt49100(0x1C, 0, 0);//11100000_00000000
 	spi_amt49100(0x1C, 0, 0);//11100000_00000000
-	spi_amt49100(0x1F, 1, 0x000);
-	spi_amt49100(0x04, 0, 0);
-	spi_amt49100(0x04, 1, 0x03F);
-	spi_amt49100(0x04, 0, 0);
+	spi_amt49100(0x1F, 0, 0x000);
+
+	spi_amt49100(0x01, 0, 0);
 	spi_amt49100(0x02, 0, 0);
 	spi_amt49100(0x02, 1, 0x03F);
 	spi_amt49100(0x02, 0, 0);
 	spi_amt49100(0x03, 0, 0);
 	spi_amt49100(0x03, 1, 0x13F);
 	spi_amt49100(0x03, 0, 0);
+	spi_amt49100(0x04, 0, 0);
+	spi_amt49100(0x04, 1, 0x03F);
+	spi_amt49100(0x04, 0, 0);
 	spi_amt49100(0x05, 0, 0);
   	spi_amt49100(0x1F, 0, 0);
 	spi_amt49100(0x1C, 0, 0);//11100000_00000000
@@ -172,13 +174,13 @@ void UsrMTR_Init(void)
 
 void UsrMTR_func(void)
 {
-	Dio_WriteChannel(DioConf_DioChannel_DioChannel_21_5_MTR_IC_EN, ON);
-		/*spi_amt49100(0x07, 0, 0);
+	//Dio_WriteChannel(DioConf_DioChannel_DioChannel_21_5_MTR_IC_EN, ON);
+		spi_amt49100(0x07, 0, 0);
 	  	spi_amt49100(0x12, 0, 0);
 	  	spi_amt49100(0x13, 0, 0);
 		spi_amt49100(0x1C, 0, 0);//11100000_00000000
 		spi_amt49100(0x1D, 0, 0);//11101000_00000001
-		spi_amt49100(0x1E, 0, 0);//11110000_00000001*/
+		spi_amt49100(0x1E, 0, 0);//11110000_00000001
 	spi_amt49100(0x1F, 0, 0);
 
 		if(U_HI>5000) {U_HI=5000;}
